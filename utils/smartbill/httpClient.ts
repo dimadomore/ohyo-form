@@ -1,5 +1,5 @@
 const SMARTBILL_API_URL = "https://ws.smartbill.ro/SBORO/api";
-const API_KEY = process.env.NEXT_PUBLIC_SMARTBILL_API_KEY || "";
+const API_KEY = process.env.SMARTBILL_API_KEY || "";
 
 export async function smartbillFetch<T>(
   endpoint: string,
