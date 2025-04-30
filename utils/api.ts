@@ -6,7 +6,7 @@ export type OrderPayload = {
 };
 
 const WEBHOOK_URL =
-  "https://dimadomore.app.n8n.cloud/webhook-test/25489fee-333a-4354-927c-a019e1da2887";
+  "https://dimadomore.app.n8n.cloud/webhook-test/51325d47-a256-4057-a3be-ca64c1e1f55b";
 
 export async function submitOrder(order: OrderPayload) {
   const response = await fetch(WEBHOOK_URL, {
