@@ -1,6 +1,7 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { Toaster } from "sonner";
 
 import { Providers } from "./providers";
 
@@ -41,11 +42,12 @@ export default function RootLayout({
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <div className="relative flex flex-col h-screen">
-            <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+            <main className="container mx-auto max-w-7xl px-6 flex-grow">
               {children}
             </main>
           </div>
         </Providers>
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

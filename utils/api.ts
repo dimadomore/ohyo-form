@@ -1,14 +1,15 @@
-export type OrderPayload = {
-  clientName: string;
-  address: string;
-  flavor: string;
-  quantity: number;
+export type CartOrder = {
+  client: string;
+  items: { flavor: string; quantity: number }[];
 };
 
-const WEBHOOK_URL =
-  "https://dimadomore.app.n8n.cloud/webhook-test/51325d47-a256-4057-a3be-ca64c1e1f55b";
+const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "";
 
-export async function submitOrder(order: OrderPayload) {
+if (!WEBHOOK_URL) {
+  throw new Error("NEXT_PUBLIC_WEBHOOK_URL is not defined");
+}
+
+export async function submitOrder(order: CartOrder) {
   const response = await fetch(WEBHOOK_URL, {
     method: "POST",
     headers: {
@@ -18,7 +19,7 @@ export async function submitOrder(order: OrderPayload) {
   });
 
   if (!response.ok) {
-    throw new Error("Ошибка при отправке заказа");
+    throw new Error("Eroare la trimiterea comenzii");
   }
 
   return response.json();
