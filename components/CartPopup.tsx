@@ -3,6 +3,7 @@ import { useCartStore } from "../store/cart";
 import { submitOrder } from "../utils/api";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import { Input } from "@nextui-org/input";
 
 const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
@@ -14,6 +15,7 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   const searchParams = useSearchParams();
   const client = searchParams.get("client") || "";
   const modalRef = useRef<HTMLFormElement>(null);
+  const [clientInput, setClientInput] = useState(client);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,16 +23,14 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
       toast.error("Comanda minimă este 240 bucăți.");
       return;
     }
-    if (!client) {
-      toast.error(
-        "Nu am putut identifica clientul. Treceti prin linkul initial pentru a va loga.",
-      );
+    if (!clientInput) {
+      toast.error("Introduceti numele clientului");
       return;
     }
     setLoading(true);
     try {
       const order = {
-        client,
+        client: clientInput,
         items: items.map(({ item, quantity }) => ({
           flavor: item.name,
           quantity,
@@ -75,6 +75,18 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
           ×
         </button>
         <h2 className="text-2xl font-bold mb-4 text-pink-600">Coș</h2>
+        <div className="mb-4">
+          <Input
+            label="Client"
+            value={clientInput}
+            onValueChange={setClientInput}
+            readOnly={!!client}
+            placeholder="Nume client"
+            errorMessage="Introduceti numele clientului"
+            isRequired
+            classNames={{ input: "bg-gray-50" }}
+          />
+        </div>
         {items.length === 0 ? (
           <div className="text-gray-500 text-center py-8">Coșul este gol</div>
         ) : (

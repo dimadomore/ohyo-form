@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useCartStore } from "../store/cart";
 import { toast } from "sonner";
+import { Minus, Plus } from "lucide-react";
 
 export type Item = {
   id: number;
@@ -23,16 +24,14 @@ const items: Item[] = [
   { id: 12, name: "Strawberries", image: "strawberry.png" },
 ];
 
-const ItemCard: React.FC<{ item: Item; onAdd: () => void }> = ({
-  item,
-  onAdd,
-}) => {
-  const [added, setAdded] = useState(false);
-  const handleAdd = () => {
-    onAdd();
-    setAdded(true);
-    setTimeout(() => setAdded(false), 3000);
-  };
+const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
+  const cartItem = useCartStore((state) =>
+    state.items.find((i) => i.item.id === item.id),
+  );
+  const addItem = useCartStore((state) => state.addItem);
+  const increment = useCartStore((state) => state.increment);
+  const decrement = useCartStore((state) => state.decrement);
+
   return (
     <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center h-full">
       <img
@@ -43,14 +42,32 @@ const ItemCard: React.FC<{ item: Item; onAdd: () => void }> = ({
       />
       <div className="font-semibold text-lg mb-4 text-center">{item.name}</div>
       <div className="mt-auto w-full flex justify-center">
-        {added ? (
-          <span className="text-green-600 font-bold text-lg">Adăugat</span>
+        {cartItem ? (
+          <div className="flex items-center w-full">
+            <button
+              className="w-10 h-10 bg-gray-200 rounded-full text-xl font-bold hover:bg-gray-300 transition-colors flex items-center justify-center"
+              onClick={() => decrement(item.id)}
+              aria-label="Decrement"
+            >
+              <Minus size={20} />
+            </button>
+            <span className="flex-1 px-4 mx-2 py-1 bg-gray-100 text-lg font-semibold text-center">
+              {cartItem.quantity}
+            </span>
+            <button
+              className="w-10 h-10 bg-pink-500 text-white rounded-full text-xl font-bold hover:bg-pink-600 transition-colors flex items-center justify-center"
+              onClick={() => increment(item.id)}
+              aria-label="Increment"
+            >
+              <Plus size={20} />
+            </button>
+          </div>
         ) : (
           <button
             className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors w-full"
-            onClick={handleAdd}
+            onClick={() => addItem(item)}
           >
-            În coș
+            Adaugă
           </button>
         )}
       </div>
@@ -67,18 +84,7 @@ const ItemGrid: React.FC<ItemGridProps> = ({ onAddToCart }) => {
   return (
     <div className="w-full max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-6">
       {items.map((item) => (
-        <ItemCard
-          key={item.id}
-          item={item}
-          onAdd={() => {
-            if (onAddToCart) {
-              onAddToCart(item);
-            } else {
-              addItem(item);
-              toast.success(`${item.name} adăugat în coș!`);
-            }
-          }}
-        />
+        <ItemCard key={item.id} item={item} />
       ))}
     </div>
   );

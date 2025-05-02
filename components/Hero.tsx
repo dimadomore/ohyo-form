@@ -23,7 +23,7 @@ const Hero: React.FC = () => {
       </h1> */}
       <p className="text-lg md:text-2xl text-pink-800 mb-8 max-w-2xl">
         Comandă deserturi japoneze mochi pentru restaurantul sau punctul tău de
-        vânzare. Gustos, rapid, comod!
+        vânzare.
       </p>
       {/* <div className="w-full max-w-3xl h-32 bg-white rounded-xl shadow flex items-center justify-center text-pink-400 text-xl">
         Aici în curând vor apărea oferte speciale!
