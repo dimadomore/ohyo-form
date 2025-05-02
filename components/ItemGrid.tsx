@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useCartStore } from "../store/cart";
-import { toast } from "sonner";
 import { Minus, Plus } from "lucide-react";
 
 export type Item = {
@@ -31,9 +30,32 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
   const addItem = useCartStore((state) => state.addItem);
   const increment = useCartStore((state) => state.increment);
   const decrement = useCartStore((state) => state.decrement);
+  const [highlight, setHighlight] = useState(false);
+  console.log("highlight:", highlight);
+
+  // Highlight only on add
+  const handleAdd = () => {
+    addItem(item);
+    setHighlight(true);
+  };
+  const handleIncrement = () => {
+    increment(item.id);
+    setHighlight(true);
+  };
+
+  React.useEffect(() => {
+    if (highlight) {
+      const timeout = setTimeout(() => setHighlight(false), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [highlight]);
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center h-full">
+    <div
+      className={`bg-white rounded-xl shadow p-6 flex flex-col items-center h-full transition-colors duration-300 ${
+        highlight ? "bg-green-200" : ""
+      }`}
+    >
       <img
         src={`/mochi/${item.image}`}
         alt={item.name}
@@ -56,7 +78,7 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
             </span>
             <button
               className="w-10 h-10 bg-pink-500 text-white rounded-full text-xl font-bold hover:bg-pink-600 transition-colors flex items-center justify-center"
-              onClick={() => increment(item.id)}
+              onClick={handleIncrement}
               aria-label="Increment"
             >
               <Plus size={20} />
@@ -65,7 +87,7 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
         ) : (
           <button
             className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors w-full"
-            onClick={() => addItem(item)}
+            onClick={handleAdd}
           >
             Adaugă
           </button>
@@ -82,7 +104,7 @@ interface ItemGridProps {
 const ItemGrid: React.FC<ItemGridProps> = ({ onAddToCart }) => {
   const addItem = useCartStore((state) => state.addItem);
   return (
-    <div className="w-full max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-4 gap-6">
       {items.map((item) => (
         <ItemCard key={item.id} item={item} />
       ))}

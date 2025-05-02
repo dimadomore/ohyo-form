@@ -99,25 +99,27 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
                     alt={item.name}
                     className="w-12 h-8 object-contain"
                   />
-                  <span className="font-medium flex-1">{item.name}</span>
-                  <div className="flex items-center gap-1">
-                    <button
-                      className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
-                      onClick={() => decrement(item.id)}
-                      type="button"
-                    >
-                      -
-                    </button>
-                    <span className="w-14 text-center text-2xl font-bold">
-                      {quantity}
-                    </span>
-                    <button
-                      className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
-                      onClick={() => increment(item.id)}
-                      type="button"
-                    >
-                      +
-                    </button>
+                  <div className="flex-1 flex flex-col">
+                    <span className="font-medium">{item.name}</span>
+                    <div className="flex items-center gap-1 mt-1">
+                      <button
+                        className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
+                        onClick={() => decrement(item.id)}
+                        type="button"
+                      >
+                        -
+                      </button>
+                      <span className="w-14 text-center text-2xl font-bold">
+                        {quantity}
+                      </span>
+                      <button
+                        className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
+                        onClick={() => increment(item.id)}
+                        type="button"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                   <button
                     className="ml-4 text-red-500 hover:text-red-700 text-3xl font-bold px-2 py-1"
