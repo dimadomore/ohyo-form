@@ -1,16 +1,13 @@
-const SMARTBILL_API_URL = "https://ws.smartbill.ro/SBORO/api";
-const API_KEY = process.env.NEXT_PUBLIC_SMARTBILL_API_KEY || "";
-const SMARTBILL_USER = "ohyopartners@gmail.com";
-const BASIC_AUTH = Buffer.from(`${SMARTBILL_USER}:${API_KEY}`).toString(
-  "base64",
-);
-console.log("API_KEY:", API_KEY);
+const API_URL = "https://ws.smartbill.ro/SBORO/api";
+const BMW = process.env.NEXT_PUBLIC_BMW || "";
+const USER = "ohyopartners@gmail.com";
+const BASIC_AUTH = Buffer.from(`${USER}:${BMW}`).toString("base64");
 
 export async function smartbillFetch<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const res = await fetch(`${SMARTBILL_API_URL}${endpoint}`, {
+  const res = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers: {
       ...(options.headers || {}),
