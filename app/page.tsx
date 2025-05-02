@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Hero from "../components/Hero";
 import ItemGrid from "../components/ItemGrid";
 import CartPopup from "../components/CartPopup";
+import FloatingCartButton from "../components/FloatingCartButton";
 import { useState, Suspense } from "react";
 
 export type Item = {
@@ -26,6 +27,7 @@ export default function Home() {
       <Suspense fallback={null}>
         <CartPopup open={cartOpen} onClose={() => setCartOpen(false)} />
       </Suspense>
+      {!cartOpen && <FloatingCartButton onClick={() => setCartOpen(true)} />}
     </main>
   );
 }

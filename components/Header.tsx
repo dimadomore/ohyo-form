@@ -23,7 +23,7 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
         <ShoppingCart size={28} />
         <span className="ml-1">Coș</span>
         {totalCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-pink-500 text-white text-sm font-bold rounded-full w-7 h-7 flex items-center justify-center shadow">
+          <span className="absolute -top-4 -right-4 bg-pink-500 text-white text-sm font-bold rounded-full w-9 h-9 flex items-center justify-center shadow">
             {totalCount}
           </span>
         )}

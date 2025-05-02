@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useCartStore } from "../store/cart";
 import { Minus, Plus } from "lucide-react";
+import clsx from "clsx";
 
 export type Item = {
   id: number;
@@ -31,7 +32,6 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
   const increment = useCartStore((state) => state.increment);
   const decrement = useCartStore((state) => state.decrement);
   const [highlight, setHighlight] = useState(false);
-  console.log("highlight:", highlight);
 
   // Highlight only on add
   const handleAdd = () => {
@@ -52,9 +52,10 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
 
   return (
     <div
-      className={`bg-white rounded-xl shadow p-6 flex flex-col items-center h-full transition-colors duration-300 ${
-        highlight ? "bg-green-200" : ""
-      }`}
+      className={
+        "bg-white rounded-xl shadow p-6 flex flex-col items-center h-full transition-colors duration-300"
+      }
+      style={{ backgroundColor: highlight ? "#bbf7d0" : "white" }}
     >
       <img
         src={`/mochi/${item.image}`}
