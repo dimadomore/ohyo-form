@@ -6,22 +6,31 @@ const Hero: React.FC = () => {
   const client = searchParams.get("client") || "";
 
   return (
-    <section className="w-full bg-pink-100 py-16 px-4 flex flex-col items-center text-center">
+    <section
+      className="w-full bg-pink-100 py-16 px-4 flex flex-col items-center text-center relative overflow-hidden"
+      style={{
+        backgroundImage: 'url("/background.avif")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Overlay for better visibility */}
+      <div className="absolute inset-0 bg-white/30 backdrop-blur-sm z-0" />
       <img
         src="/mochi-logo.avif"
         alt="Mochi Logo"
-        className="w-auto h-28 mb-6 object-contain"
+        className="w-auto h-28 mb-6 object-contain relative z-10"
         loading="lazy"
       />
       {client && (
-        <div className="text-pink-700 font-bold mb-6 text-3xl">
+        <div className="text-pink-800 font-bold mb-6 text-3xl relative z-10">
           Salut, {client}
         </div>
       )}
       {/* <h1 className="text-5xl md:text-6xl font-extrabold text-pink-700 mb-4">
         Mochi proaspăt pentru afacerea ta
       </h1> */}
-      <p className="text-lg md:text-2xl text-pink-800 mb-8 max-w-2xl">
+      <p className="text-lg md:text-2xl text-pink-800 mb-8 max-w-2xl relative z-10">
         Comandă deserturi japoneze mochi pentru restaurantul sau punctul tău de
         vânzare.
       </p>
