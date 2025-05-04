@@ -10,8 +10,9 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
   const totalCount = useCartStore((state) =>
     state.items.reduce((sum, i) => sum + i.quantity, 0),
   );
+
   return (
-    <header className="w-full flex items-center justify-between px-6 py-4 bg-white shadow-md">
+    <header className="w-full flex items-center justify-between px-6 py-4 bg-white">
       <div className="flex items-center gap-2 text-2xl font-bold text-black">
         OHYO Distribution
       </div>

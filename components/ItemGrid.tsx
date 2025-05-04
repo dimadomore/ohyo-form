@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useCartStore } from "../store/cart";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 import clsx from "clsx";
 
 export type Item = {
@@ -53,7 +53,7 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
   return (
     <div
       className={
-        "bg-white rounded-xl shadow p-6 flex flex-col items-center h-full transition-colors duration-300"
+        "bg-white rounded-xl shadow p-3 md:p-6 flex flex-col items-center h-full transition-colors duration-300"
       }
       style={{ backgroundColor: highlight ? "#bbf7d0" : "white" }}
     >
@@ -90,7 +90,10 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
             className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors w-full"
             onClick={handleAdd}
           >
-            Adaugă
+            <span className="flex items-center justify-center gap-2">
+              <ShoppingCart size={20} />
+              Adaugă
+            </span>
           </button>
         )}
       </div>
@@ -102,10 +105,9 @@ interface ItemGridProps {
   onAddToCart?: (item: Item) => void;
 }
 
-const ItemGrid: React.FC<ItemGridProps> = ({ onAddToCart }) => {
-  const addItem = useCartStore((state) => state.addItem);
+const ItemGrid: React.FC<ItemGridProps> = () => {
   return (
-    <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div className="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-6">
       {items.map((item) => (
         <ItemCard key={item.id} item={item} />
       ))}

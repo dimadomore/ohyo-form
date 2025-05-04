@@ -7,7 +7,7 @@ const Hero: React.FC = () => {
 
   return (
     <section
-      className="w-full bg-pink-100 py-16 px-4 flex flex-col items-center text-center relative overflow-hidden"
+      className="w-full flex flex-col items-center text-center relative overflow-hidden px-6 py-4 bg-pink-100"
       style={{
         backgroundImage: 'url("/background.avif")',
         backgroundSize: "cover",

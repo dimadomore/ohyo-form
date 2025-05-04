@@ -25,7 +25,6 @@ export default function Home() {
         (stock: any) => stock.warehouse.warehouseName === "TRAMAR",
       )?.products,
   );
-  console.log("stocks:", products);
 
   // useEffect(() => {
   //   const fetchStocks = async () => {
@@ -54,7 +53,7 @@ export default function Home() {
       <Suspense fallback={null}>
         <Hero />
       </Suspense>
-      <div className="flex-1 flex flex-col items-center pt-12 px-4">
+      <div className="flex-1 flex flex-col items-center py-12 px-4 bg-gray-50">
         <ItemGrid />
       </div>
       <Suspense fallback={null}>
