@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useCartStore } from "../store/cart";
 import { submitOrder } from "../utils/api";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
 import { Input } from "@nextui-org/input";
 import { useClientStore } from "../store/client";
+import { Select, SelectItem } from "@nextui-org/select";
+
 const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
   onClose,
@@ -13,18 +14,23 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   const totalCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
-  const searchParams = useSearchParams();
   const client = useClientStore((state) => state.client);
   const minimalUnitsPerOrder = Number(client?.minimalUnitsPerOrder) || 240;
 
-  console.log("minimalUnitsPerOrder:", minimalUnitsPerOrder);
-
   const modalRef = useRef<HTMLFormElement>(null);
   const [clientInput, setClientInput] = useState<string>();
+  const [selectedLocation, setSelectedLocation] = useState<string | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     if (client) {
       setClientInput(client.name);
+      if (client.locations && client.locations.length > 0) {
+        setSelectedLocation(client.locations[0].name);
+      } else {
+        setSelectedLocation(undefined);
+      }
     }
   }, [client]);
 
@@ -40,13 +46,16 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
     }
     setLoading(true);
     try {
-      const order = {
+      const order: any = {
         client: clientInput,
         items: items.map(({ item, quantity }) => ({
           flavor: item.name,
           quantity,
         })),
       };
+      if (selectedLocation) {
+        order.location = selectedLocation;
+      }
       await submitOrder(order);
       toast.success("Comanda a fost plasată cu succes!");
       clearCart();
@@ -112,6 +121,28 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
                 isRequired
                 classNames={{ input: "bg-gray-50" }}
               />
+              {client && client.locations && client.locations.length > 1 && (
+                <div className="mt-4">
+                  <Select
+                    label="Locație"
+                    selectedKeys={selectedLocation ? [selectedLocation] : []}
+                    onSelectionChange={(keys) => {
+                      const key = Array.from(
+                        keys as Set<React.Key>,
+                      )[0] as string;
+                      setSelectedLocation(key);
+                    }}
+                    isRequired
+                    classNames={{ trigger: "bg-gray-50" }}
+                  >
+                    {client.locations.map((location) => (
+                      <SelectItem key={location.name} value={location.name}>
+                        {location.name}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
+              )}
             </div>
           )}
         </div>

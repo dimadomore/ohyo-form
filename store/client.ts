@@ -1,6 +1,24 @@
 import { create } from "zustand";
 
-type Client = Record<string, string>;
+export interface ClientLocation {
+  gid: string;
+  color: string;
+  enabled: boolean;
+  name: string;
+  resource_type: string;
+}
+
+export interface Client {
+  gid: string;
+  name: string;
+  email?: string;
+  description?: string;
+  phoneNumber?: string;
+  minimalUnitsPerOrder?: string;
+  locations?: ClientLocation[];
+  frequencyByMonth?: string;
+  lastOrderDate?: string;
+}
 
 interface ClientState {
   client?: Client;

@@ -76,7 +76,7 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
             >
               <Minus size={20} />
             </button>
-            <div className="flex items-baseline justify-center gap-1 flex-1 px-4 mx-2 py-1 bg-gray-100 text-lg font-semibold text-center">
+            <div className="flex items-baseline justify-center gap-1 flex-1 px-2 md:px-4 mx-1 md:mx-4 py-2 md:py-1 bg-gray-100 text-sm md:text-lg font-semibold text-center rounded-md">
               {cartItem.quantity}{" "}
               <span className="text-xs font-normal">buc.</span>
             </div>

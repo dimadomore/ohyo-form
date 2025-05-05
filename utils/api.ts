@@ -1,3 +1,5 @@
+import type { Client, ClientLocation } from "../store/client";
+
 export type CartOrder = {
   client: string;
   items: { flavor: string; quantity: number }[];
@@ -33,6 +35,8 @@ export const getAsanaTaskData = async (gid: string) => {
       "Content-Type": "application/json",
     },
   });
+
+  console.log("response:", response);
 
   if (!response.ok) {
     throw new Error("Eroare la trimiterea comenzii");

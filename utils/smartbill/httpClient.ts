@@ -1,7 +1,7 @@
 const API_URL = "https://ws.smartbill.ro/SBORO/api";
-const BMW = process.env.NEXT_PUBLIC_BMW || "";
+const BMW = "MDAzfDc1YWNhYWZiODcyMjQ5MmEzZTc5NWZhN2E0NjRiNTQ1";
 const USER = "ohyopartners@gmail.com";
-const BASIC_AUTH = Buffer.from(`${USER}:${BMW}`).toString("base64");
+const BASIC_AUTH = Buffer.from(`${USER}:${atob(BMW)}`).toString("base64");
 
 export async function smartbillFetch<T>(
   endpoint: string,

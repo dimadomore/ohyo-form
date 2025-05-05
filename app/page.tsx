@@ -23,7 +23,7 @@ type SmartbillProduct = {
   // ...other fields
 };
 
-export function enrichGridItemsWithStock(
+function enrichGridItemsWithStock(
   gridItems: Item[],
   products: SmartbillProduct[],
 ): Item[] {
