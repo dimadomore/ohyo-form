@@ -74,9 +74,10 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
             >
               <Minus size={20} />
             </button>
-            <span className="flex-1 px-4 mx-2 py-1 bg-gray-100 text-lg font-semibold text-center">
-              {cartItem.quantity}
-            </span>
+            <div className="flex items-baseline justify-center gap-1 flex-1 px-4 mx-2 py-1 bg-gray-100 text-lg font-semibold text-center">
+              {cartItem.quantity}{" "}
+              <span className="text-xs font-normal">buc.</span>
+            </div>
             <button
               className="w-10 h-10 bg-pink-500 text-white rounded-full text-xl font-bold hover:bg-pink-600 transition-colors flex items-center justify-center"
               onClick={handleIncrement}
