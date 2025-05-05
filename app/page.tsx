@@ -53,7 +53,7 @@ export default function Home() {
       <Suspense fallback={null}>
         <Hero />
       </Suspense>
-      <div className="flex-1 flex flex-col items-center py-12 px-4 bg-gray-50">
+      <div className="flex-1 flex flex-col items-center py-6 px-4 bg-gray-50">
         <ItemGrid />
       </div>
       <Suspense fallback={null}>

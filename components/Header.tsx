@@ -14,7 +14,12 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
   return (
     <header className="w-full flex items-center justify-between px-6 py-4 bg-white">
       <div className="flex items-center gap-2 text-2xl font-bold text-black">
-        OHYO Distribution
+        <img
+          src="/mochi-logo.avif"
+          alt="Mochi Logo"
+          className="w-auto h-12 object-contain"
+          loading="lazy"
+        />
       </div>
       <button
         onClick={onCartClick}
