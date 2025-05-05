@@ -2,7 +2,8 @@ import React from "react";
 import { useClientStore } from "../store/client";
 
 const Hero: React.FC = () => {
-  const client = useClientStore((state) => state.client) || "Dima";
+  const client = useClientStore((state) => state.client);
+  console.log("client:", client);
 
   return (
     <section
@@ -15,26 +16,16 @@ const Hero: React.FC = () => {
     >
       {/* Overlay for better visibility */}
       <div className="absolute inset-0 bg-white/30 backdrop-blur-sm z-0" />
-      {/* <img
-        src="/mochi-logo.avif"
-        alt="Mochi Logo"
-        className="w-auto h-28 mb-6 object-contain relative z-10"
-        loading="lazy"
-      /> */}
-      {client && (
+
+      {client ? (
         <div className="text-pink-800 font-bold mb-6 text-3xl relative z-10">
-          Salut, {client}
+          Salut, {client.name as string}
         </div>
-      )}
-      {/* <h1 className="text-5xl md:text-6xl font-extrabold text-pink-700 mb-4">
-        Mochi proaspăt pentru afacerea ta
-      </h1> */}
-      <p className="text-lg md:text-2xl text-pink-900 mb-4 max-w-2xl relative z-10">
+      ) : null}
+
+      <h1 className="text-lg md:text-2xl text-pink-900 mb-4 max-w-2xl relative z-10">
         Vă mulțumim că sunteți alături de noi! Comandați deserturi Mochi!
-      </p>
-      {/* <div className="w-full max-w-3xl h-32 bg-white rounded-xl shadow flex items-center justify-center text-pink-400 text-xl">
-        Aici în curând vor apărea oferte speciale!
-      </div> */}
+      </h1>
     </section>
   );
 };

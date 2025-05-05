@@ -4,7 +4,7 @@ import { submitOrder } from "../utils/api";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { Input } from "@nextui-org/input";
-
+import { useClientStore } from "../store/client";
 const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
   onClose,
@@ -14,14 +14,24 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const searchParams = useSearchParams();
-  const client = searchParams.get("client") || "";
+  const client = useClientStore((state) => state.client);
+  const minimalUnitsPerOrder = Number(client?.minimalUnitsPerOrder) || 240;
+
+  console.log("minimalUnitsPerOrder:", minimalUnitsPerOrder);
+
   const modalRef = useRef<HTMLFormElement>(null);
-  const [clientInput, setClientInput] = useState(client);
+  const [clientInput, setClientInput] = useState<string>();
+
+  useEffect(() => {
+    if (client) {
+      setClientInput(client.name);
+    }
+  }, [client]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (totalCount < 240) {
-      toast.error("Comanda minimă este 240 bucăți.");
+    if (totalCount < minimalUnitsPerOrder) {
+      toast.error(`Comanda minimă este ${minimalUnitsPerOrder} bucăți.`);
       return;
     }
     if (!clientInput) {
@@ -108,9 +118,9 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
         {/* List (scrollable) or Success Message */}
         <div className="flex-1 min-h-0 overflow-y-auto px-8 flex flex-col justify-center">
           {orderSuccess ? (
-            <div className="flex flex-col items-center justify-center h-full py-12">
+            <div className="flex flex-col items-center justify-center h-full py-12 text-center">
               <span className="text-3xl text-pink-600 font-bold mb-4">
-                Mulțumim pentru comandă!
+                Mulțumim pentru comandă, {clientInput}!
               </span>
               <span className="text-lg text-gray-700 mb-6 text-center">
                 Veți fi contactat în curând pentru confirmare.
@@ -130,45 +140,65 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
             <div className="text-gray-500 text-center py-8">Coșul este gol</div>
           ) : (
             <ul className="mb-6 divide-y">
-              {items.map(({ item, quantity }) => (
-                <li key={item.id} className="flex items-center gap-3 py-2">
-                  <img
-                    src={`/mochi/${item.image}`}
-                    alt={item.name}
-                    className="w-12 h-8 object-contain"
-                  />
-                  <div className="flex-1 flex flex-col">
-                    <span className="font-medium">{item.name}</span>
-                    <div className="flex items-center gap-1 mt-1">
-                      <button
-                        className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
-                        onClick={() => decrement(item.id)}
-                        type="button"
-                      >
-                        -
-                      </button>
-                      <span className="w-14 text-center text-2xl font-bold">
-                        {quantity}
+              {items.map(({ item, quantity }) => {
+                const canAdd = (item.stock ?? Infinity) - quantity >= 20;
+                return (
+                  <li key={item.id} className="flex items-center gap-3 py-2">
+                    <img
+                      src={`/mochi/${item.image}`}
+                      alt={item.name}
+                      className="w-12 h-8 object-contain"
+                    />
+                    <div className="flex-1 flex flex-col">
+                      <span className="font-medium flex items-center justify-between gap-2 text-sm">
+                        {item.name}
+                        {canAdd ? (
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 ml-2">
+                            În stoc
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600 ml-2">
+                            Stoc epuizat
+                          </span>
+                        )}
                       </span>
-                      <button
-                        className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
-                        onClick={() => increment(item.id)}
-                        type="button"
-                      >
-                        +
-                      </button>
+                      <div className="flex items-center gap-1 mt-1">
+                        <button
+                          className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
+                          onClick={() => decrement(item.id)}
+                          type="button"
+                        >
+                          -
+                        </button>
+                        <span className="w-14 text-center text-2xl font-bold">
+                          {quantity}
+                        </span>
+                        <button
+                          className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => canAdd && increment(item.id)}
+                          type="button"
+                          disabled={!canAdd}
+                          title={
+                            !canAdd
+                              ? "Trebuie să rămână cel puțin 20 în stoc"
+                              : ""
+                          }
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <button
-                    className="ml-4 text-red-500 hover:text-red-700 text-3xl font-bold px-2 py-1"
-                    onClick={() => removeItem(item.id)}
-                    aria-label="Șterge"
-                    type="button"
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
+                    <button
+                      className="ml-4 text-red-500 hover:text-red-700 text-3xl font-bold px-2 py-1"
+                      onClick={() => removeItem(item.id)}
+                      aria-label="Șterge"
+                      type="button"
+                    >
+                      ×
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -182,14 +212,18 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
             )}
             <button
               className="w-full py-3 bg-pink-500 text-white rounded-lg font-bold text-lg hover:bg-pink-600 transition-colors disabled:opacity-60 mt-2"
-              disabled={items.length === 0 || totalCount < 240 || loading}
+              disabled={
+                items.length === 0 ||
+                totalCount < minimalUnitsPerOrder ||
+                loading
+              }
               type="submit"
             >
               {loading ? "Se trimite..." : "Plasează comanda"}
             </button>
-            {totalCount < 240 && items.length > 0 && (
+            {totalCount < minimalUnitsPerOrder && items.length > 0 && (
               <div className="text-red-500 text-center mt-2 text-sm">
-                Comanda minimă este 240 bucăți.
+                Comanda minimă este {minimalUnitsPerOrder} bucăți.
               </div>
             )}
           </div>

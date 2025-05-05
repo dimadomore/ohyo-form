@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Item } from "../components/ItemGrid";
+import type { Item } from "../utils/constants";
 
 export interface CartItem {
   item: Item;

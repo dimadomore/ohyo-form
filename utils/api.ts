@@ -4,6 +4,7 @@ export type CartOrder = {
 };
 
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "";
+const ASANA_WEBHOOK_URL = process.env.NEXT_PUBLIC_ASANA_WEBHOOK_URL || "";
 
 if (!WEBHOOK_URL) {
   throw new Error("NEXT_PUBLIC_WEBHOOK_URL is not defined");
@@ -24,3 +25,18 @@ export async function submitOrder(order: CartOrder) {
 
   return response.json();
 }
+
+export const getAsanaTaskData = async (gid: string) => {
+  const response = await fetch(ASANA_WEBHOOK_URL + "/" + gid, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Eroare la trimiterea comenzii");
+  }
+
+  return response.json();
+};

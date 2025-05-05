@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
+type Client = Record<string, string>;
+
 interface ClientState {
-  client: string;
-  setClient: (client: string) => void;
-  clearClient: () => void;
+  client?: Client;
+  setClient: (client: Client) => void;
 }
 
 export const useClientStore = create<ClientState>((set) => ({
-  client: "",
-  setClient: (client) => set({ client }),
-  clearClient: () => set({ client: "" }),
+  client: undefined,
+  setClient: (client: Client) => set({ client }),
 }));

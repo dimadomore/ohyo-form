@@ -2,27 +2,11 @@ import React, { useState } from "react";
 import { useCartStore } from "../store/cart";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import clsx from "clsx";
+import { type Item, items } from "../utils/constants";
 
-export type Item = {
-  id: number;
-  name: string;
-  image: string;
-};
-
-const items: Item[] = [
-  { id: 1, name: "Cherry Truffle", image: "cherry-truffle.png" },
-  { id: 2, name: "Banana with Chocolate", image: "banana-chocolate.png" },
-  { id: 3, name: "Pistachio", image: "pistachio.png" },
-  { id: 4, name: "Matcha Green Tea", image: "matcha.png" },
-  { id: 5, name: "Passion Fruit", image: "passion.png" },
-  { id: 6, name: "Mango", image: "mango.png" },
-  { id: 7, name: "Panna Cotta", image: "panna-cotta.png" },
-  { id: 8, name: "Salted Caramel", image: "salted-caramel.png" },
-  { id: 9, name: "Coconut with Almonds", image: "coconut.png" },
-  { id: 10, name: "Berries", image: "berries.png" },
-  { id: 11, name: "Pomegranate with Honey", image: "pomegranate.png" },
-  { id: 12, name: "Strawberries", image: "strawberry.png" },
-];
+interface ItemGridProps {
+  items: Item[];
+}
 
 const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
   const cartItem = useCartStore((state) =>
@@ -33,14 +17,22 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
   const decrement = useCartStore((state) => state.decrement);
   const [highlight, setHighlight] = useState(false);
 
+  const quantityInCart = cartItem ? cartItem.quantity : 0;
+  // Only allow adding if at least 20 left in stock
+  const canAdd = (item.stock ?? Infinity) - quantityInCart >= 20;
+
   // Highlight only on add
   const handleAdd = () => {
-    addItem(item);
-    setHighlight(true);
+    if (canAdd) {
+      addItem(item);
+      setHighlight(true);
+    }
   };
   const handleIncrement = () => {
-    increment(item.id);
-    setHighlight(true);
+    if (canAdd) {
+      increment(item.id);
+      setHighlight(true);
+    }
   };
 
   React.useEffect(() => {
@@ -53,10 +45,20 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
   return (
     <div
       className={
-        "bg-white rounded-xl shadow p-3 md:p-6 flex flex-col items-center h-full transition-colors duration-300"
+        "bg-white rounded-xl shadow p-3 md:p-6 flex flex-col items-center h-full transition-colors duration-300 relative"
       }
       style={{ backgroundColor: highlight ? "#bbf7d0" : "white" }}
     >
+      {/* Stock tag in top right */}
+      <div
+        className={clsx(
+          "absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold",
+          canAdd ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600",
+        )}
+        style={{ zIndex: 2 }}
+      >
+        {canAdd ? "În stoc" : "Stoc epuizat"}
+      </div>
       <img
         src={`/mochi/${item.image}`}
         alt={item.name}
@@ -79,9 +81,10 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
               <span className="text-xs font-normal">buc.</span>
             </div>
             <button
-              className="w-10 h-10 bg-pink-500 text-white rounded-full text-xl font-bold hover:bg-pink-600 transition-colors flex items-center justify-center"
+              className="w-10 h-10 bg-pink-500 text-white rounded-full text-xl font-bold hover:bg-pink-600 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleIncrement}
               aria-label="Increment"
+              disabled={!canAdd}
             >
               <Plus size={20} />
             </button>
@@ -90,6 +93,7 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
           <button
             className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors w-full"
             onClick={handleAdd}
+            disabled={!canAdd}
           >
             <span className="flex items-center justify-center gap-2">
               <ShoppingCart size={20} />
@@ -102,14 +106,14 @@ const ItemCard: React.FC<{ item: Item }> = ({ item }) => {
   );
 };
 
-interface ItemGridProps {
-  onAddToCart?: (item: Item) => void;
-}
-
-const ItemGrid: React.FC<ItemGridProps> = () => {
+const ItemGrid: React.FC<ItemGridProps> = ({ items }) => {
+  // Only show items with stock > 0 and Smartbill product
+  const filtered = items.filter(
+    (item) => item.smartbillProductName && (item.stock ?? 0) > 0,
+  );
   return (
     <div className="w-full max-w-5xl grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-6">
-      {items.map((item) => (
+      {filtered.map((item) => (
         <ItemCard key={item.id} item={item} />
       ))}
     </div>
