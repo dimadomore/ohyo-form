@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useCartStore } from "../store/cart";
-import { submitOrder } from "../utils/api";
+import { CartOrder, submitOrder } from "../utils/api";
 import { toast } from "sonner";
 import { Input } from "@nextui-org/input";
 import { useClientStore } from "../store/client";
@@ -46,7 +46,8 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
     }
     setLoading(true);
     try {
-      const order: any = {
+      const order: CartOrder = {
+        gid: client?.gid as string,
         client: clientInput,
         items: items.map(({ item, quantity }) => ({
           flavor: item.name,
@@ -54,7 +55,7 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
         })),
       };
       if (selectedLocation) {
-        order.location = selectedLocation;
+        order.location = selectedLocation as string;
       }
       await submitOrder(order);
       toast.success("Comanda a fost plasată cu succes!");

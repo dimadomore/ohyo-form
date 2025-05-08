@@ -3,6 +3,8 @@ import type { Client, ClientLocation } from "../store/client";
 export type CartOrder = {
   client: string;
   items: { flavor: string; quantity: number }[];
+  gid: string;
+  location?: string;
 };
 
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "";
