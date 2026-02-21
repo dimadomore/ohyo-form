@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Minus, Plus, X } from "lucide-react";
 import { useCartStore } from "../store/cart";
 import { CartOrder, submitOrder } from "../utils/api";
 import { toast } from "sonner";
-import { Input } from "@nextui-org/input";
 import { useClientStore } from "../store/client";
-import { Select, SelectItem } from "@nextui-org/select";
+import { getCartItemImage } from "../utils/constants";
 
 const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   open,
@@ -15,33 +15,33 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const client = useClientStore((state) => state.client);
-  const minimalUnitsPerOrder = Number(client?.minimalUnitsPerOrder) || 240;
+  const minOrder = Number(client?.minimalUnitsPerOrder) || 240;
 
   const modalRef = useRef<HTMLFormElement>(null);
-  const [clientInput, setClientInput] = useState<string>();
+  const [clientInput, setClientInput] = useState<string>("");
   const [selectedLocation, setSelectedLocation] = useState<string | undefined>(
     undefined,
   );
 
   useEffect(() => {
     if (client) {
-      setClientInput(client.name);
-      if (client.locations && client.locations.length > 0) {
-        setSelectedLocation(client.locations[0].name);
-      } else {
-        setSelectedLocation(undefined);
-      }
+      setClientInput(client.name ?? "");
+      setSelectedLocation(
+        client.locations && client.locations.length > 0
+          ? client.locations[0].name
+          : undefined,
+      );
     }
   }, [client]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (totalCount < minimalUnitsPerOrder) {
-      toast.error(`Comanda minimă este ${minimalUnitsPerOrder} bucăți.`);
+    if (!clientInput.trim()) {
+      toast.error("Introduceți numele clientului");
       return;
     }
-    if (!clientInput) {
-      toast.error("Introduceti numele clientului");
+    if (totalCount < minOrder) {
+      toast.error(`Comanda minimă este ${minOrder} bucăți.`);
       return;
     }
     setLoading(true);
@@ -54,33 +54,33 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
           quantity,
         })),
       };
-      if (selectedLocation) {
-        order.location = selectedLocation as string;
-      }
+      if (selectedLocation) order.location = selectedLocation;
       await submitOrder(order);
-      toast.success("Comanda a fost plasată cu succes!");
+      toast.success(
+        "Comanda a fost plasată! Managerul vă va contacta în curând pentru confirmare.",
+        { duration: 6000 },
+      );
       clearCart();
       setOrderSuccess(true);
-    } catch (err) {
+    } catch {
       toast.error("Eroare la trimiterea comenzii.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Close on overlay click
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (modalRef.current && e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
-  // Disable background scroll when popup is open
+  // Lock body scroll
   useEffect(() => {
     if (open) {
-      const originalOverflow = document.body.style.overflow;
+      const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
-        document.body.style.overflow = originalOverflow;
+        document.body.style.overflow = prev;
       };
     }
   }, [open]);
@@ -89,176 +89,196 @@ const CartPopup: React.FC<{ open: boolean; onClose: () => void }> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
       onClick={handleOverlayClick}
       role="presentation"
-      tabIndex={-1}
     >
       <form
         ref={modalRef}
-        className="bg-white rounded-2xl shadow-2xl p-0 w-full max-w-lg relative flex flex-col min-h-[400px] max-h-[80vh]"
         onSubmit={handleSubmit}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex-shrink-0 p-8 pb-0 relative">
+        <div className="flex-shrink-0 flex items-center justify-between px-6 pt-6 pb-4">
+          <h2 className="text-3xl font-extrabold text-[#e95d75] tracking-wide">
+            Coș
+          </h2>
           <button
-            className="absolute top-4 right-4 text-gray-400 hover:text-pink-500 text-2xl"
-            onClick={onClose}
-            aria-label="Închide coșul"
             type="button"
+            onClick={onClose}
+            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#f7d6de] text-[#e95d75] hover:bg-[#e95d75] hover:text-white transition-colors"
+            aria-label="Închide"
           >
-            ×
+            <X size={18} strokeWidth={2.5} />
           </button>
-          <h2 className="text-2xl font-bold mb-4 text-pink-600">Coș</h2>
-          {!orderSuccess && (
-            <div className="mb-4">
-              <Input
-                label="Client"
+        </div>
+
+        {orderSuccess ? (
+          /* Success State */
+          <div className="flex-1 flex flex-col items-center justify-center px-6 pb-8 text-center gap-4">
+            <div className="text-5xl">🎉</div>
+            <p className="text-2xl font-extrabold text-[#e95d75]">
+              Mulțumim, {clientInput}!
+            </p>
+            <div className="bg-[#fdf3f5] rounded-2xl px-5 py-4 text-sm text-[#7a4a55] leading-relaxed space-y-2">
+              <p className="font-semibold">
+                Comanda dumneavoastră a fost înregistrată cu succes și este în
+                procesare.
+              </p>
+              <p>
+                Managerul nostru vă va contacta în cel mai scurt timp pentru a
+                confirma detaliile comenzii și data livrării.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setOrderSuccess(false);
+                onClose();
+              }}
+              className="mt-1 px-8 py-3 bg-[#ee798d] hover:bg-[#e95d75] text-white rounded-2xl font-bold transition-colors"
+            >
+              Închide
+            </button>
+          </div>
+        ) : (
+          <>
+            {/* Client Input */}
+            <div className="flex-shrink-0 px-6 pb-2 space-y-3">
+              <input
                 value={clientInput}
-                onValueChange={setClientInput}
+                onChange={(e) => setClientInput(e.target.value)}
                 readOnly={!!client}
-                placeholder="Nume client"
-                errorMessage="Introduceti numele clientului"
-                isRequired
-                classNames={{ input: "bg-gray-50" }}
+                placeholder="Nume client *"
+                required
+                className="w-full bg-[#f7d6de]/50 rounded-2xl px-4 py-3 text-sm font-medium text-[#2c2c2c] placeholder-[#c0808a] outline-none focus:ring-2 focus:ring-[#ee798d] read-only:cursor-default"
               />
-              {client && client.locations && client.locations.length > 1 && (
-                <div className="mt-4">
-                  <Select
-                    label="Locație"
-                    selectedKeys={selectedLocation ? [selectedLocation] : []}
-                    onSelectionChange={(keys) => {
-                      const key = Array.from(
-                        keys as Set<React.Key>,
-                      )[0] as string;
-                      setSelectedLocation(key);
-                    }}
-                    isRequired
-                    classNames={{ trigger: "bg-gray-50" }}
-                  >
-                    {client.locations.map((location) => (
-                      <SelectItem key={location.name} value={location.name}>
-                        {location.name}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
+              {client?.locations && client.locations.length > 1 && (
+                <select
+                  value={selectedLocation ?? ""}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  required
+                  className="w-full bg-[#f7d6de]/50 rounded-2xl px-4 py-3 text-sm font-medium text-[#2c2c2c] outline-none focus:ring-2 focus:ring-[#ee798d]"
+                >
+                  {client.locations.map((loc) => (
+                    <option key={loc.name} value={loc.name}>
+                      {loc.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {minOrder > 0 && (
+                <p className="text-xs text-[#e95d75] font-medium pl-1">
+                  Comanda minimă {minOrder} bucăți
+                </p>
               )}
             </div>
-          )}
-        </div>
-        {/* List (scrollable) or Success Message */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-8 flex flex-col justify-center">
-          {orderSuccess ? (
-            <div className="flex flex-col items-center justify-center h-full py-12 text-center">
-              <span className="text-3xl text-pink-600 font-bold mb-4">
-                Mulțumim pentru comandă, {clientInput}!
-              </span>
-              <span className="text-lg text-gray-700 mb-6 text-center">
-                Veți fi contactat în curând pentru confirmare.
-              </span>
-              <button
-                className="px-6 py-3 bg-pink-500 text-white rounded-lg font-bold text-lg hover:bg-pink-600 transition-colors mt-2"
-                type="button"
-                onClick={() => {
-                  setOrderSuccess(false);
-                  onClose();
-                }}
-              >
-                Închide
-              </button>
-            </div>
-          ) : items.length === 0 ? (
-            <div className="text-gray-500 text-center py-8">Coșul este gol</div>
-          ) : (
-            <ul className="mb-6 divide-y">
-              {items.map(({ item, quantity }) => {
-                const canAdd = (item.stock ?? Infinity) - quantity >= 20;
-                return (
-                  <li key={item.id} className="flex items-center gap-3 py-2">
-                    <img
-                      src={`/mochi/${item.image}`}
-                      alt={item.name}
-                      className="w-12 h-8 object-contain"
-                    />
-                    <div className="flex-1 flex flex-col">
-                      <span className="font-medium flex items-center justify-between gap-2 text-sm">
-                        {item.name}
-                        {canAdd ? (
-                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 ml-2">
-                            În stoc
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600 ml-2">
-                            Stoc epuizat
-                          </span>
+
+            {/* Items list */}
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-2">
+              {items.length === 0 ? (
+                <div className="py-10 text-center text-gray-400 text-sm">
+                  Coșul este gol
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {items.map(({ item, quantity }) => {
+                    const canAdd =
+                      (item.stock ?? Infinity) - quantity >=
+                        (Number(process.env.NEXT_PUBLIC_ORDER_MULTIPLE) ||
+                          16) && (item.stock ?? 0) > 0;
+                    const imgSrc = getCartItemImage(item);
+                    return (
+                      <li
+                        key={item.id}
+                        className="flex items-center gap-3 bg-[#fdf3f5] rounded-2xl p-3"
+                      >
+                        {imgSrc && (
+                          <img
+                            src={imgSrc}
+                            alt={item.label}
+                            className="w-14 h-14 object-contain flex-shrink-0"
+                          />
                         )}
-                      </span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <button
-                          className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200"
-                          onClick={() => decrement(item.id)}
-                          type="button"
-                        >
-                          -
-                        </button>
-                        <span className="w-14 text-center text-2xl font-bold">
-                          {quantity}
-                        </span>
-                        <button
-                          className="px-3 py-2 text-2xl bg-gray-200 rounded hover:bg-pink-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                          onClick={() => canAdd && increment(item.id)}
-                          type="button"
-                          disabled={!canAdd}
-                          title={
-                            !canAdd
-                              ? "Trebuie să rămână cel puțin 20 în stoc"
-                              : ""
-                          }
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      className="ml-4 text-red-500 hover:text-red-700 text-3xl font-bold px-2 py-1"
-                      onClick={() => removeItem(item.id)}
-                      aria-label="Șterge"
-                      type="button"
-                    >
-                      ×
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-        {/* Bottom (fixed) */}
-        {!orderSuccess && (
-          <div className="flex-shrink-0 px-8 pb-8 pt-2 bg-white rounded-b-2xl">
-            {items.length > 0 && (
-              <div className="mb-4 text-lg font-semibold text-right">
-                Total: {totalCount}
-              </div>
-            )}
-            <button
-              className="w-full py-3 bg-pink-500 text-white rounded-lg font-bold text-lg hover:bg-pink-600 transition-colors disabled:opacity-60 mt-2"
-              disabled={
-                items.length === 0 ||
-                totalCount < minimalUnitsPerOrder ||
-                loading
-              }
-              type="submit"
-            >
-              {loading ? "Se trimite..." : "Plasează comanda"}
-            </button>
-            {totalCount < minimalUnitsPerOrder && items.length > 0 && (
-              <div className="text-red-500 text-center mt-2 text-sm">
-                Comanda minimă este {minimalUnitsPerOrder} bucăți.
-              </div>
-            )}
-          </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-bold text-sm text-[#2c2c2c] leading-tight">
+                              {item.label}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.id)}
+                              className="flex-shrink-0 w-7 h-7 bg-[#ee798d] hover:bg-[#e95d75] text-white rounded-lg flex items-center justify-center transition-colors"
+                              aria-label="Șterge"
+                            >
+                              <X size={13} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              type="button"
+                              onClick={() => decrement(item.id)}
+                              className="w-8 h-8 bg-[#ee798d] hover:bg-[#e95d75] text-white rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+                              aria-label="Reduce"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="flex-1 text-center font-bold text-sm text-[#be4c5f]">
+                              {quantity}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => canAdd && increment(item.id)}
+                              disabled={!canAdd}
+                              className="w-8 h-8 bg-[#ee798d] hover:bg-[#e95d75] text-white rounded-lg flex items-center justify-center transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                              aria-label="Adaugă"
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex-shrink-0 px-6 pt-3 pb-6 space-y-3">
+              {items.length > 0 && (
+                <div className="flex items-center justify-between text-[#e95d75] font-bold px-1">
+                  <span>Total:</span>
+                  <span className="text-xl">{totalCount} buc.</span>
+                </div>
+              )}
+              {!client && (
+                <p className="text-center text-xs text-[#e87a7a] font-medium py-1">
+                  Accesați pagina printr-un link personal pentru a plasa o
+                  comandă.
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={
+                  !client ||
+                  items.length === 0 ||
+                  totalCount < minOrder ||
+                  loading
+                }
+                className="w-full py-3.5 bg-[#ee798d] hover:bg-[#e95d75] text-white font-bold uppercase rounded-2xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm tracking-wide"
+              >
+                {loading ? "Se trimite..." : "Plasează comanda"}
+              </button>
+              {client && totalCount > 0 && totalCount < minOrder && (
+                <p className="text-center text-xs text-[#e87a7a]">
+                  Mai adăugați {minOrder - totalCount} bucăți pentru comanda
+                  minimă
+                </p>
+              )}
+            </div>
+          </>
         )}
       </form>
     </div>

@@ -15,7 +15,7 @@ interface CartState {
   clearCart: () => void;
 }
 
-const MULTIPLIER = 20;
+const MULTIPLIER = Number(process.env.NEXT_PUBLIC_ORDER_MULTIPLE) || 16;
 
 export const useCartStore = create<CartState>((set) => ({
   items: [],

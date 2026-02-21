@@ -5,26 +5,37 @@ const Hero: React.FC = () => {
   const client = useClientStore((state) => state.client);
 
   return (
-    <section className="bg-white flex flex-col items-center w-full text-center">
-      <div className="flex flex-col items-center bg-white p-6">
-        {client ? (
-          <div className="text-pink-800 font-bold mb-6 text-3xl relative z-10">
-            Salut, {client.name as string}
-          </div>
-        ) : null}
+    <section className="w-full bg-[#e5752d] overflow-hidden">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-12 flex items-end justify-between min-h-[200px] sm:min-h-[280px] md:min-h-[360px] lg:min-h-[420px]">
+        <div className="text-white pb-6 sm:pb-8 md:pb-12 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+          <h1 className="font-extrabold uppercase leading-none tracking-tight text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+            Comandați
+            <br />
+            deserturi mochi!
+          </h1>
+          <p className="mt-2 sm:mt-3 font-semibold uppercase text-xs sm:text-sm md:text-base text-white/90 leading-snug">
+            Vă mulțumim că sunteți alături de noi!
+          </p>
+          {client && (
+            <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-2.5">
+              <span className="text-white/80 text-sm font-medium">Salut,</span>
+              <span className="font-extrabold text-white text-base tracking-wide">
+                {client.name}
+              </span>
+              <span className="text-lg">👋</span>
+            </div>
+          )}
+        </div>
 
-        <h1 className="text-lg md:text-2xl text-pink-900 mb-4 max-w-2xl relative z-10">
-          Vă mulțumim că sunteți alături de noi! Comandați deserturi Mochi!
-        </h1>
+        <div className="self-end flex-shrink-0">
+          <img
+            src="/guy.png"
+            alt="MOTI"
+            className="h-[160px] sm:h-[240px] md:h-[320px] lg:h-[400px] w-auto object-contain object-bottom"
+            loading="eager"
+          />
+        </div>
       </div>
-      <div
-        className="xl:w-7/12 w-full lg:h-96 flex mx-auto flex-col md:h-80 h-64 items-center text-center relative overflow-hidden bg-pink-100"
-        style={{
-          backgroundImage: 'url("/background.avif")',
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      ></div>
     </section>
   );
 };

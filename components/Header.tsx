@@ -12,28 +12,28 @@ const Header: React.FC<HeaderProps> = ({ onCartClick }) => {
   );
 
   return (
-    <header className="w-full flex items-center justify-between px-6 py-4 bg-white">
-      <div className="flex items-center gap-2 text-2xl font-bold text-black">
+    <header className="w-full bg-[#e5752d] px-4 sm:px-6 lg:px-12 py-4">
+      <div className="max-w-screen-xl mx-auto flex items-center justify-between">
         <img
           src="/mochi-logo.avif"
-          alt="Mochi Logo"
-          className="w-auto h-12 object-contain"
-          loading="lazy"
+          alt="MOTI"
+          className="h-8 sm:h-10 w-auto object-contain brightness-0 invert"
+          loading="eager"
         />
+        <button
+          onClick={onCartClick}
+          className="relative flex items-center gap-2 bg-white rounded-2xl px-4 py-2 text-[#e95d75] font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-shadow"
+          aria-label="Open cart"
+        >
+          <ShoppingCart size={18} strokeWidth={2.5} />
+          <span>Coș</span>
+          {totalCount > 0 && (
+            <span className="absolute -top-2.5 -right-2.5 bg-[#e95d75] text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
+              {totalCount}
+            </span>
+          )}
+        </button>
       </div>
-      <button
-        onClick={onCartClick}
-        className="relative flex items-center gap-2 px-4 py-2 rounded-full border-2 border-pink-400 bg-pink-50 hover:bg-pink-100 transition-colors shadow-md text-pink-700 font-semibold text-lg"
-        aria-label="Open cart"
-      >
-        <ShoppingCart size={28} />
-        <span className="ml-1">Coș</span>
-        {totalCount > 0 && (
-          <span className="absolute -top-4 -right-4 bg-pink-500 text-white text-sm font-bold rounded-full w-9 h-9 flex items-center justify-center shadow">
-            {totalCount}
-          </span>
-        )}
-      </button>
     </header>
   );
 };
