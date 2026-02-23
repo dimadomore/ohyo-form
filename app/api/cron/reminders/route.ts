@@ -19,20 +19,6 @@ const ONGOING_SECTION_NAME = "Ongoing support";
 const CRON_SECRET = process.env.CRON_SECRET ?? "";
 const APP_BASE_URL = process.env.APP_BASE_URL ?? "https://ohyo-form.vercel.app";
 
-function getBucharestHourMinute(date: Date): { hour: number; minute: number } {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Bucharest",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).formatToParts(date);
-
-  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? NaN);
-  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? NaN);
-
-  return { hour, minute };
-}
-
 export async function GET(request: NextRequest) {
   const dryRun =
     request.nextUrl.searchParams.get("dryRun") === "1" ||
@@ -42,19 +28,6 @@ export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  // Vercel Cron schedules are in UTC and don't support time zones.
-  // We trigger at 07:00 and 08:00 UTC, and only run when it's 10:00 in Bucharest.
-  if (!dryRun) {
-    const { hour, minute } = getBucharestHourMinute(new Date());
-    if (hour !== 10 || minute !== 0) {
-      return NextResponse.json({
-        skipped: true,
-        reason: "Not 10:00 Europe/Bucharest",
-        bucharestTime: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
-      });
-    }
   }
 
   try {

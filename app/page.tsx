@@ -9,7 +9,11 @@ import { useState, useEffect } from "react";
 import { useStocksStore } from "../store/stocks";
 import { useClientStore } from "../store/client";
 import { getAsanaTaskData } from "../utils/api";
-import { items as gridItems, type Item, type PackType } from "../utils/constants";
+import {
+  items as gridItems,
+  type Item,
+  type PackType,
+} from "../utils/constants";
 import clsx from "clsx";
 
 const getGidFromUrl = (url: string) => {
@@ -39,24 +43,32 @@ function enrichGridItemsWithStock(
   });
 }
 
-const TABS: { id: PackType; label: string; activeClass: string; inactiveClass: string }[] = [
+const TABS: {
+  id: PackType;
+  label: string;
+  activeClass: string;
+  inactiveClass: string;
+}[] = [
   {
     id: "single",
     label: "Single pack",
     activeClass: "bg-[#ee798d] text-white border-[#ee798d]",
-    inactiveClass: "bg-transparent text-[#ee798d] border-[#ee798d] hover:bg-[#f7d6de]",
+    inactiveClass:
+      "bg-transparent text-[#ee798d] border-[#ee798d] hover:bg-[#f7d6de]",
   },
   {
     id: "box",
     label: "Single box",
     activeClass: "bg-[#91c57e] text-white border-[#91c57e]",
-    inactiveClass: "bg-transparent text-[#91c57e] border-[#91c57e] hover:bg-[#e6f5e0]",
+    inactiveClass:
+      "bg-transparent text-[#91c57e] border-[#91c57e] hover:bg-[#e6f5e0]",
   },
   {
     id: "pack",
     label: "4-Pack",
     activeClass: "bg-[#f9c66d] text-white border-[#f9c66d]",
-    inactiveClass: "bg-transparent text-[#d99d39] border-[#f9c66d] hover:bg-[#fff7e8]",
+    inactiveClass:
+      "bg-transparent text-[#d99d39] border-[#f9c66d] hover:bg-[#fff7e8]",
   },
 ];
 

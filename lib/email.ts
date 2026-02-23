@@ -9,6 +9,17 @@ function getResend(): Resend {
   return _resend;
 }
 
+function getFromAddress(): string {
+  // IMPORTANT:
+  // - You cannot reliably send "from" a vercel.app domain (you don't own it / can't verify it).
+  // - Prefer setting RESEND_FROM to an address on a verified domain in Resend.
+  // - Fallback uses Resend's dev sender.
+  return (
+    process.env.RESEND_FROM?.trim() ||
+    "OHYO Orders <onboarding@resend.dev>"
+  );
+}
+
 interface OrderItem {
   flavor: string;
   quantity: number;
@@ -79,22 +90,40 @@ export async function sendOrderNotificationToManager(
     return;
   }
 
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY not set, skipping email");
+    return;
+  }
+
   const html = buildOrderEmailHtml(clientName, items, location);
 
-  return getResend().emails.send({
-    from: "OHYO Orders <orders@ohyo-form.vercel.app>",
+  const result = await getResend().emails.send({
+    from: getFromAddress(),
     to: [managerEmail],
     subject: `Comandă nouă de la ${clientName}`,
     html,
   });
+
+  // Resend returns { data, error } (not always thrown)
+  // Make failures visible in Vercel logs.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const error = (result as any)?.error;
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+
+  return result;
 }
 
 export async function sendOrderConfirmationToClient(
   clientEmail: string,
   clientName: string,
 ) {
-  return getResend().emails.send({
-    from: "OHYO <orders@ohyo-form.vercel.app>",
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY not set, skipping email");
+    return;
+  }
+
+  const result = await getResend().emails.send({
+    from: getFromAddress(),
     to: [clientEmail],
     subject: "Comanda dumneavoastră a fost primită",
     html: `
@@ -107,4 +136,10 @@ export async function sendOrderConfirmationToClient(
       </div>
     `,
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const error = (result as any)?.error;
+  if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
+
+  return result;
 }

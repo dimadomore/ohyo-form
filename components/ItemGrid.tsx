@@ -85,7 +85,7 @@ const ItemCard: React.FC<{ item: Item; packType: PackType }> = ({
   return (
     <div
       className={clsx(
-        "relative flex flex-col bg-white rounded-3xl overflow-hidden transition-all duration-300",
+        "relative flex flex-col rounded-3xl overflow-hidden transition-all duration-300",
         highlight && "ring-2 ring-green-300",
       )}
     >
@@ -106,7 +106,7 @@ const ItemCard: React.FC<{ item: Item; packType: PackType }> = ({
       </div>
 
       {/* Pink bottom section: name + action */}
-      <div className="mx-3 mb-3 mt-2 rounded-2xl bg-[#f7d6de] px-3 pt-2.5 pb-2.5">
+      <div className="mx-3 mb-3 mt-2 rounded-2xl bg-[#f7d6de] p-4">
         {/* Name */}
         <div className="text-center font-bold text-base sm:text-lg text-[#2c2c2c] mb-2">
           {item.label}
